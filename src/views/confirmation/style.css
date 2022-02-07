@@ -1,0 +1,53 @@
+.confirmation-modal {
+	min-width: 40rem;
+	max-width: 80%;
+}
+
+.confirmation-title-ctr {
+	display: flex;
+	align-items: baseline;
+	gap: .8rem;
+}
+
+.confirmation-msg-ctr {
+	font-size: 1.6rem;
+	line-height: 1.5;
+}
+
+.confirmation-msg-ctr::first-letter {
+	text-transform: capitalize;
+}
+
+.confirmation-verb {
+	font-style: italic;
+	font-weight: 700;
+}
+
+.confirmation-item {
+	font-style: italic;
+	font-weight: 700;
+}
+
+.confirmation-item::before,
+.confirmation-item::after {
+	color: #ff922b;
+	display: inline-block;
+}
+
+.confirmation-item::before {
+	content: "“";
+	padding-right: .3rem;
+}
+
+.confirmation-item::after {
+	content: "”";
+	padding-left: .2rem;
+}
+
+.confirmation-modal.confirm-danger .confirmation-modal-confirm-btn {
+	background-color: var(--color-danger);
+}
+
+.confirmation-modal.confirm-warning .confirmation-modal-confirm-btn {
+	background-color: var(--color-warning);
+}

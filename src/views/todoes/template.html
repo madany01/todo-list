@@ -1,0 +1,179 @@
+<div class="todoes-component">
+	<!-- templates -->
+	<script type="text/template" class="todoTemplate">
+		<li class="todo" data-id={{todo.id}}>
+			<div class="todo-priority priority-{{todo.priority}}">
+				<button class="todo-change-status"></button>
+			</div>
+			<div class="right">
+				<div class="todo-title">{{todo.name}}</div>
+				<div class="todo-description">{{todo.description}}</div>
+				<div class="todo-last-line">
+					<div class="todo-date-ctr">
+						<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-calendar2"
+							viewBox="0 0 16 16">
+							<path
+								d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2z" />
+							<path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V4z" />
+						</svg>
+						<span class="todo-date">{{todo.dueDate}}</span>
+					</div>
+					<div class="todo-buttons">
+						<button class="rounded-btn rounded-btn-edit edit-todo">
+							<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor"
+								class="bi bi-pencil-square" viewBox="0 0 16 16">
+								<path
+									d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+								<path fill-rule="evenodd"
+									d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+							</svg>
+						</button>
+						<button class="rounded-btn rounded-btn-delete delete-todo">
+							<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-trash"
+								viewBox="0 0 16 16">
+								<path
+									d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+								<path fill-rule="evenodd"
+									d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</li>
+	</script>
+
+	<script type="text/template" class="doneTodoTemplate">
+		<li class="todo" data-id={{todo.id}}>
+			<div class="todo-priority priority-{{todo.priority}}">
+				<button class="todo-change-status"></button>
+			</div>
+			<div class="right">
+				<div class="todo-title">{{todo.name}}</div>
+				<div class="todo-description">{{todo.description}}</div>
+				<div class="todo-last-line">
+					<div class="todo-date-ctr">
+						<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-calendar2"
+							viewBox="0 0 16 16">
+							<path
+								d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM2 2a1 1 0 0 0-1 1v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1H2z" />
+							<path d="M2.5 4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H3a.5.5 0 0 1-.5-.5V4z" />
+						</svg>
+						<span class="todo-date">{{todo.dueDate}}</span>
+					</div>
+					<div class="todo-buttons">
+						<button class="rounded-btn rounded-btn-delete delete-todo">
+							<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="currentColor" class="bi bi-trash"
+								viewBox="0 0 16 16">
+								<path
+									d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+								<path fill-rule="evenodd"
+									d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+							</svg>
+						</button>
+					</div>
+				</div>
+			</div>
+		</li>
+	</script>
+
+	<!-- modals -->
+	<div class="modal modal-todo-form d-none">
+		<header class="modal-header">
+			<div class="modal-title"> todo</div>
+			<div class="modal-close-icon">✖</div>
+		</header>
+		<form class="modal-content">
+			<div class="modal-todo-inputs-ctr">
+				<input class="modal-todo-input todo-name-input" type="text" name="name"
+					placeholder="Todo name, e.g. Finish creating html/css of todolist">
+				<textarea class="modal-todo-input todo-description-input" name="description" cols="30" rows="10"
+					placeholder="description .."></textarea>
+				<div class="modal-todo-input-row">
+					<select class="modal-todo-input project-select-input" name="projectId">
+					</select>
+					<select class="modal-todo-input priority-select-input" name="priority">
+						<option class="priority-0" value="0">🏳 Normal</option>
+						<option class="priority-1" value="1">🏳 Important</option>
+						<option class="priority-2" value="2">🏳 Critical</option>
+					</select>
+					<input class="modal-todo-input modal-todo-input-date todo-date-input" type="date" name="dueDate">
+				</div>
+			</div>
+			<div class="modal-btns">
+				<button class="modal-btn cancel">cancel</button>
+				<button class="modal-btn action" type="submit"></button>
+			</div>
+		</form>
+	</div>
+
+	<div class="modal todo-details d-none">
+		<header class="modal-header">
+			<div class="todo-details-project-ctr">
+				<div class="todo-details-project-color"></div>
+				<div class="modal-title todo-details-project-name">work</div>
+			</div>
+			<div class="modal-close-icon">✖</div>
+		</header>
+		<div class="modal-content todo-details-content">
+			<div class="todo-details-title">todo title goes here</div>
+			<div class="todo-details-description">
+				Lorem ipsum dolor sit amet consectetur adipisicing elit. Laborum dignissimos obcaecati aspernatur cum
+			</div>
+			<div class="todo-details-info-ctr">
+				<div class="todo-details-priority-ctr priority-ctr priority-1">
+					<div class="priority-icon">🏳</div>
+					<div class="priority-label"></div>
+				</div>
+				<div class="todo-details-status todo-details-status-done">
+					<div class="todo-details-status-icon"></div>
+					<div class="todo-status-label"></div>
+				</div>
+				<div class="todo-details-date-ctr">
+					<div class="todo-details-icon">📅</div>
+					<div class="todo-details-date">2020-02-02</div>
+					<!-- <div class="todo-details-remaining-date">2 days left</div> -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- content -->
+	<header class="todoes-header">
+		<div class="current-project">work</div>
+		<div class="todoes-controls">
+			<button class="toggle-done-todoes" title="show/hide completed todoes">
+				<svg class="toggle-done-todoes-icon icon-off-done-todoes bi bi-toggle2-off" xmlns="http://www.w3.org/2000/svg"
+					fill="currentColor" viewBox="0 0 16 16">
+					<path d="M9 11c.628-.836 1-1.874 1-3a4.978 4.978 0 0 0-1-3h4a3 3 0 1 1 0 6H9z" />
+					<path d="M5 12a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm0 1A5 5 0 1 0 5 3a5 5 0 0 0 0 10z" />
+				</svg>
+				<svg class="toggle-done-todoes-icon icon-on-done-todoes bi bi-toggle2-on" xmlns="http://www.w3.org/2000/svg"
+					fill="currentColor" viewBox="0 0 16 16">
+					<path d="M7 5H3a3 3 0 0 0 0 6h4a4.995 4.995 0 0 1-.584-1H3a2 2 0 1 1 0-4h3.416c.156-.357.352-.692.584-1z" />
+					<path d="M16 8A5 5 0 1 1 6 8a5 5 0 0 1 10 0z" />
+				</svg>
+			</button>
+			<button class="add-todo">
+				<svg class="add-todo-icon bi bi-plus-lg" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+					viewBox="0 0 16 16">
+					<path fill-rule="evenodd"
+						d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z">
+					</path>
+				</svg>
+				<div class="add-todo-label">add todo</div>
+			</button>
+		</div>
+	</header>
+
+	<div class="all-todoes">
+		<ul class="todoes">
+			<li class="no-todoes">📪 There are no todoes yet</li>
+		</ul>
+
+		<ul class="done-todoes hidden">
+			<li class="no-todoes">📪 There are no completed todoes</li>
+		</ul>
+	</div>
+
+</div>
