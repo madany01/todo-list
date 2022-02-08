@@ -10,46 +10,83 @@ import { confirm, CONFIRMATION_MODES } from '../confirmation/index'
 import { createModalMgr } from './_modal-manager'
 
 
-function createProjectEl (projectTemplate, project) {
-	const template = projectTemplate
-		.replace(/{{project.id}}/g, project.id)
-		.replace(/{{project.name}}/g, project.name)
-		.replace(/{{project.color}}/g, project.color)
-		.replace(/{{project.todoesCnt}}/g, project.todoesCnt)
-
-	const el = htmlToElement(template)
-
-	if (project.isActive) el.classList.add('selected')
-	el.querySelector('.color').style.setProperty('background-color', project.color)
-
-	return el
-}
-
-function updateHomeEl (homeEl, project) {
-	homeEl.dataset.id = String(project.id)
-	homeEl.classList.remove('selected')
-	if (project.isActive) homeEl.classList.add('selected')
-	homeEl.textContent = project.name
-}
-
 
 function createProjectsView (parentEl) {
+	// state objects
+	const projectsMap = new Map()
+	let activeProject = null
+	// events
 	const projectAddEvent = createEvent()
 	const projectEditEvent = createEvent()
 	const projectDeleteEvent = createEvent()
 	const projectSelectEvent = createEvent()
-
-	const projects = new Map()
-
+	// dom elements
 	const el = htmlToElement(componentTemplate)
-
-	const projectTemplate = el.querySelector('.projectTemplate').textContent
-
 	const menuEl = el.querySelector('.collapsed-menu-options')
 	const homeProjectEl = el.querySelector('.home-project')
 	const projectListEl = el.querySelector('.project-list')
-
+	// templates
+	const projectTemplate = el.querySelector('.projectTemplate').textContent
+	// modal managers
 	const modalMgr = createModalMgr(el.querySelector('.project-modal'))
+
+
+
+	// add/select/delete/edit projects
+
+	function add (...projects) {
+		projects.forEach(project => {
+			projectsMap.set(project.id, project)
+
+			if (project.isHome) {
+				updateHomeEl(project)
+				return
+			}
+
+			projectListEl.append(createProjectEl(project))
+		})
+	}
+
+	function select (project) {
+		if (activeProject) {
+			if (activeProject.isHome) homeProjectEl.classList.remove('selected')
+			else projectListEl.querySelector('.project.selected')?.classList.remove('selected')
+		}
+
+		activeProject = project
+
+		if (activeProject.isHome) homeProjectEl.classList.add('selected')
+		else {
+			projectListEl.querySelector(`.project[data-id="${project.id}"]`)
+				.classList.add('selected')
+		}
+	}
+
+	function delete_ (id) {
+		if (activeProject && activeProject.id === id) activeProject = null
+
+		projectListEl.querySelector(`.project[data-id="${id}"]`).remove()
+		projectsMap.delete(id)
+	}
+
+	function edit (...projects) {
+		projects.forEach(project => {
+			projectsMap.set(project.id, project)
+
+			if (project.isHome) {
+				updateHomeEl(project)
+				return
+			}
+
+			const projectEl = createProjectEl(project)
+
+			if (project.id === activeProject?.id) projectEl.classList.add('selected')
+
+			projectListEl.querySelector(`.project[data-id="${project.id}"]`).replaceWith(projectEl)
+		})
+	}
+
+	// event handlers
 
 	function handleMenuClick (e) {
 		const addBtn = e.target.closest('.add-project')
@@ -75,7 +112,7 @@ function createProjectsView (parentEl) {
 	async function handleDeleteEvent (id) {
 		const ok = await confirm({
 			verb: 'delete',
-			item: projects.get(id).name,
+			item: projectsMap.get(id).name,
 			mode: CONFIRMATION_MODES.danger,
 		})
 		if (!ok) return
@@ -87,12 +124,12 @@ function createProjectsView (parentEl) {
 	}
 
 	function handleEditEvent (id) {
-		const project = projects.get(id)
+		const project = projectsMap.get(id)
 		modalMgr.showModal(modalMgr.MODES.EDIT, handleEditDone.bind(null, id), project)
 	}
 
 	function handleSelectEvent (id) {
-		if (projects.get(id).isActive) return
+		if (id === activeProject?.id) return
 		projectSelectEvent.trigger(id)
 	}
 
@@ -108,41 +145,45 @@ function createProjectsView (parentEl) {
 		projectDeleteEvent.trigger(id)
 	}
 
-	function render (newProjects) {
-		while (projectListEl.childElementCount) projectListEl.lastChild.remove()
+	// utils
 
-		projects.clear()
+	function createProjectEl (project) {
+		const html = projectTemplate
+			.replace(/{{project.id}}/g, project.id)
+			.replace(/{{project.name}}/g, project.name)
+			.replace(/{{project.color}}/g, project.color)
+			.replace(/{{project.todoesCnt}}/g, project.todoesCnt)
 
-		newProjects.forEach(project => {
-			projects.set(project.id, project)
-			if (project.isHome) updateHomeEl(homeProjectEl, project)
-		})
+		const el = htmlToElement(html)
 
-		projectListEl.append(
-			...newProjects
-				.filter(project => !project.isHome)
-				.map(project => createProjectEl(projectTemplate, project))
-		)
+		el.querySelector('.color').style.setProperty('background-color', project.color)
+
+		return el
 	}
 
-	function bindEvents () {
-		homeProjectEl.addEventListener('click', () => handleSelectEvent(homeProjectEl.dataset.id))
-		menuEl.addEventListener('click', handleMenuClick)
-		projectListEl.addEventListener('click', handleProjectListClickEvent)
+	function updateHomeEl (project) {
+		homeProjectEl.dataset.id = String(project.id)
+		homeProjectEl.textContent = project.name
 	}
+
 
 	(function init () {
 		parentEl.append(el)
-		bindEvents()
+		// bind events
+		homeProjectEl.addEventListener('click', () => handleSelectEvent(homeProjectEl.dataset.id))
+		menuEl.addEventListener('click', handleMenuClick)
+		projectListEl.addEventListener('click', handleProjectListClickEvent)
 	})()
-
 
 	return {
 		projectAddEvent,
 		projectEditEvent,
 		projectDeleteEvent,
 		projectSelectEvent,
-		render,
+		add,
+		edit,
+		select,
+		delete: delete_,
 	}
 }
 

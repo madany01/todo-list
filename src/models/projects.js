@@ -1,8 +1,13 @@
 import { generateId } from '../utils/unique-number-generator'
 
-function createProject (
-	{ id = null, name, color, isHome = false, isActive = false, todoIds = [] }
-) {
+function createProject ({
+	id = null,
+	name,
+	color,
+	isHome = false,
+	isActive = false,
+	todoIds = [],
+}) {
 	id = id === null ? generateId() : id
 	todoIds = [...todoIds]
 
@@ -28,10 +33,15 @@ function createProject (
 		}
 	}
 
-	function asViewModel () {
-		return {
-			id, name, color, todoesCnt: todoIds.length, isHome, isActive
-		}
+	function asDataObject () {
+		return Object.freeze({
+			id,
+			name,
+			color,
+			todoIds,
+			todoesCnt: todoIds.length,
+			isHome,
+		})
 	}
 
 	function update (projectData) {
@@ -47,7 +57,7 @@ function createProject (
 		toggleActive,
 		addTodo,
 		removeTodo,
-		asViewModel,
+		asDataObject,
 		get id () { return id },
 		get isHome () { return isHome },
 		get isActive () { return isActive },

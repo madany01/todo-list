@@ -9,13 +9,61 @@ const MODES = Object.freeze({
 })
 
 function createModalMgr (el) {
+	// dom elements
 	const nameInput = el.querySelector('input.project-name')
 	const colorInput = el.querySelector('input.project-color')
 	const closeBtns = [...el.querySelectorAll('.cancel, .modal-close-icon')]
 	const actionBtn = el.querySelector('.action')
+	// state objects
 	let overlayReleaser = null
 	let doneHandler = null
 
+
+	async function showModal (mode, onDoneHandler, { name, color } = {}) {
+		doneHandler = onDoneHandler
+
+		el.classList.add(`mode-${mode}`)
+
+		if (name) nameInput.value = name
+		if (color) colorInput.value = color
+
+		overlayReleaser = await acquireOverlay(handleCancelClick)
+
+		unhide()
+	}
+
+	// event handlers
+
+	function handleCancelClick (e) {
+		if (e) e.preventDefault()
+		cleanAndHide()
+		release()
+	}
+
+	function handleActionClick (e) {
+		e.preventDefault()
+		if (!valid()) {
+			reflectErrors()
+			return
+		}
+
+		const projectData = {
+			name: nameInput.value.trim(),
+			color: colorInput.value
+		}
+
+		cleanAndHide()
+		release()
+		doneHandler(projectData)
+		doneHandler = null
+	}
+
+	function reflectErrors () {
+		if (!valid()) nameInput.classList.add('invalid')
+		else nameInput.classList.remove('invalid')
+	}
+
+	// utils
 
 	function clean () {
 		Object.entries(MODES).forEach(
@@ -50,47 +98,6 @@ function createModalMgr (el) {
 		return nameInput.value.trim() !== ''
 	}
 
-	function reflectErrors () {
-		if (!valid()) nameInput.classList.add('invalid')
-		else nameInput.classList.remove('invalid')
-	}
-
-	function handleCancelClick (e) {
-		if (e) e.preventDefault()
-		cleanAndHide()
-		release()
-	}
-
-	function handleActionClick (e) {
-		e.preventDefault()
-		if (!valid()) {
-			reflectErrors()
-			return
-		}
-
-		const projectData = {
-			name: nameInput.value.trim(),
-			color: colorInput.value
-		}
-
-		cleanAndHide()
-		release()
-		doneHandler(projectData)
-		doneHandler = null
-	}
-
-	async function showModal (mode, onDoneHandler, { name, color } = {}) {
-		doneHandler = onDoneHandler
-
-		el.classList.add(`mode-${mode}`)
-
-		if (name) nameInput.value = name
-		if (color) colorInput.value = color
-
-		overlayReleaser = await acquireOverlay(handleCancelClick)
-
-		unhide()
-	}
 
 	;(function init () {
 		closeBtns.forEach(btn => btn.addEventListener('click', handleCancelClick))

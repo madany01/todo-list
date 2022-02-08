@@ -38,7 +38,6 @@
 	transform: translate(-50%, -50%);
 	border-radius: .8rem;
 	overflow: hidden;
-	overflow-y: auto;
 	box-shadow: 0 0 .8rem rgba(255, 255, 255, 0.25);
 	color: var(--color-light);
 }
@@ -64,6 +63,7 @@
 .modal-content {
 	background-color: #191919;
 	padding: 2.4rem;
+	overflow: auto;
 }
 
 .modal-btns {

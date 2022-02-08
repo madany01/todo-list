@@ -1,7 +1,13 @@
 import { generateId } from '../utils/unique-number-generator'
 
 function createTodo ({
-	id = null, name, description, priority, dueDate, projectId, isDone = false
+	id = null,
+	name,
+	description,
+	priority,
+	dueDate,
+	projectId,
+	isDone = false,
 }) {
 	id = id ?? generateId()
 	dueDate = new Date(dueDate)
@@ -12,10 +18,10 @@ function createTodo ({
 		}
 	}
 
-	function asViewModel () {
-		return {
+	function asDataObject () {
+		return Object.freeze({
 			id, name, description, priority, dueDate, projectId, isDone
-		}
+		})
 	}
 
 	function toggleDone () {
@@ -26,15 +32,16 @@ function createTodo ({
 		name = todoData.name ?? name
 		description = todoData.description ?? description
 		priority = todoData.priority ?? priority
-		dueDate = new Date(todoData.dueDate ?? dueDate)
 		projectId = todoData.projectId ?? projectId
+
+		dueDate = new Date(todoData.dueDate ?? dueDate)
 	}
 
 	return {
 		toJson,
 		update,
 		toggleDone,
-		asViewModel,
+		asDataObject,
 		get id () { return id },
 		get projectId () { return projectId },
 	}
@@ -42,6 +49,21 @@ function createTodo ({
 
 createTodo.fromJson = function (jsonTodo) {
 	return createTodo(jsonTodo)
+}
+
+createTodo.createWelcomeTodo = function (projectId) {
+	return createTodo({
+		name: 'Create your first todo 😃',
+		description: `
+select project from the left side, or create new one,
+then click on "Add todo",
+specify todo name, description, project, priority, and date
+		`.trim(),
+		priority: 0,
+		dueDate: new Date(),
+		projectId,
+		isDone: false,
+	})
 }
 
 export { createTodo }

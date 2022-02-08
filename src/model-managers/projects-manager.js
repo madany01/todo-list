@@ -1,14 +1,136 @@
 import { createProject } from '../models/projects'
-import { createEvent } from '../utils/events'
 
 
 function createProjectsManager () {
-	const projectsMap = new Map()
+	// state objects
+	const projectsMap = new Map() // project id => project object
 	const state = {
 		activeProjectId: null,
 		homeProjectId: null,
 	}
-	const projectsChangedEvent = createEvent()
+
+	function add (projectData) {
+		const project = createProject(projectData)
+		projectsMap.set(project.id, project)
+		saveProjectIds()
+		saveProject(project)
+		return project.asDataObject()
+	}
+
+	function getProject (id) {
+		return projectsMap.get(id).asDataObject()
+	}
+
+	function getProjects (ids) {
+		return ids.map(id => projectsMap.get(id).asDataObject())
+	}
+
+	function getAllProjects () {
+		return asArray().map(project => project.asDataObject())
+	}
+
+
+	function getActiveProject () {
+		return projectsMap.get(state.activeProjectId).asDataObject()
+	}
+
+	function getHomeProject () {
+		return projectsMap.get(state.homeProjectId).asDataObject()
+	}
+
+	function delete_ (id) {
+		if (id === state.homeProjectId) throw new Error("can't delete home project")
+
+		if (id === state.activeProjectId) {
+			const homeProject = projectsMap.get(state.homeProjectId)
+			homeProject.toggleActive()
+			state.activeProjectId = homeProject.id
+			saveProject(homeProject)
+		}
+
+		projectsMap.delete(id)
+		saveProjectIds()
+		deleteProject(id)
+	}
+
+	function edit (projectData) {
+		const project = projectsMap.get(projectData.id)
+		project.update(projectData)
+		saveProject(project)
+		return project.asDataObject()
+	}
+
+	function setActiveProject (id) {
+		if (state.activeProjectId === id) return
+
+		const preActive = projectsMap.get(state.activeProjectId)
+		const curActive = projectsMap.get(id)
+
+		preActive?.toggleActive()
+		curActive.toggleActive()
+
+		state.activeProjectId = id
+
+		saveProject(preActive, curActive)
+	}
+
+
+	function addTodo (todoId, projectId) {
+		const project = projectsMap.get(projectId)
+		project.addTodo(todoId)
+		saveProject(project)
+	}
+
+	function removeTodo (todoId, projectId) {
+		const project = projectsMap.get(projectId)
+		project.removeTodo(todoId)
+		saveProject(project)
+	}
+
+	function moveTodoToProject (todoId, fromProjectId, toProjectId) {
+		const fromProject =	projectsMap.get(fromProjectId)
+		const toProject =	projectsMap.get(toProjectId)
+
+		fromProject.removeTodo(todoId)
+		toProject.addTodo(todoId)
+
+		saveProject(fromProject, toProject)
+	}
+
+
+
+	function saveProject (...projects) {
+		projects.forEach(project =>
+			localStorage.setItem(`project-${project.id}`, JSON.stringify(project.toJson()))
+		)
+	}
+
+	function saveProjectIds () {
+		localStorage.setItem('projectIds', JSON.stringify(asArray().map(project => project.id)))
+	}
+
+	function deleteProject (...ids) {
+		ids.forEach(id =>
+			localStorage.removeItem(`project-${id}`)
+		)
+	}
+
+	function load () {
+		// projectIds => [id1, id2, ..]
+		// project-${id} => {jsonRepresentation}
+
+		const projectIds = JSON.parse(localStorage.getItem('projectIds')) || []
+
+		return projectIds
+			.map(id => JSON.parse(localStorage.getItem(`project-${id}`)))
+			.map(jsonProject => createProject.fromJson(jsonProject))
+	}
+
+	// utils
+
+	function asArray () {
+		return [...projectsMap.values()]
+	}
 
 
 	;(function init () {
@@ -24,6 +146,8 @@ function createProjectsManager () {
 				isHome: true,
 			})
 			projectsMap.set(homeProject.id, homeProject)
+			saveProjectIds()
+			saveProject(homeProject)
 		}
 
 		state.homeProjectId = homeProject.id
@@ -31,88 +155,20 @@ function createProjectsManager () {
 	})()
 
 
-	function asArray () {
-		return [...projectsMap.values()]
-	}
-
-	function load () {
-		return (JSON.parse(localStorage.getItem('projects')) || [])
-			.map(jsonProject => createProject.fromJson(jsonProject))
-	}
-
-	function save () {
-		const projectsJson = [...projectsMap.values()].map(project => project.toJson())
-		localStorage.setItem('projects', JSON.stringify(projectsJson))
-	}
-
-	function commit () {
-		save()
-		projectsChangedEvent.trigger(asArray().map(project => project.asViewModel()))
-	}
-
-	function add (project) {
-		project = createProject(project)
-		projectsMap.set(project.id, project)
-		commit()
-	}
-
-	function edit (project) {
-		projectsMap.get(project.id).update(project)
-		commit()
-	}
-
-	function delete_ (id) {
-		if (id === state.homeProjectId) throw new Error("can't delete home project")
-		if (id === state.activeProjectId) {
-			projectsMap.get(state.homeProjectId).toggleActive()
-			state.activeProjectId = state.homeProjectId
-		}
-		projectsMap.delete(id)
-		commit()
-	}
-
-	function setActiveProject (id) {
-		if (state.activeProjectId === id) return
-		projectsMap.get(state.activeProjectId).toggleActive()
-		projectsMap.get(id).toggleActive()
-		state.activeProjectId = id
-		commit()
-	}
-
-	function addTodo (todoId, projectId) {
-		projectsMap.get(projectId).addTodo(todoId)
-		commit()
-	}
-
-	function removeTodo (todoId, projectId) {
-		projectsMap.get(projectId).removeTodo(todoId)
-		commit()
-	}
-
-	function moveTodoToProject (todoId, oldProjectId, newProjectId) {
-		projectsMap.get(oldProjectId).removeTodo(todoId)
-		projectsMap.get(newProjectId).addTodo(todoId)
-		commit()
-	}
-
-	function getTodoIdsOfProject (projectId) {
-		return projectsMap.get(projectId).getTodoIds()
-	}
-
-
 	return {
-		projectsChangedEvent,
 		add,
+		getProject,
+		getProjects,
+		getAllProjects,
+		getActiveProject,
+		getHomeProject,
 		edit,
-		delete: delete_,
 		setActiveProject,
+		delete: delete_,
+
 		addTodo,
 		removeTodo,
 		moveTodoToProject,
-		getTodoIdsOfProject,
-		get activeProjectId () { return state.activeProjectId },
-		get homeProjectId () { return state.homeProjectId },
-		get projects () { return asArray().map(project => project.asViewModel()) },
 	}
 }
 
