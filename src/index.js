@@ -191,7 +191,7 @@ function _createDummyData (nProjects, nTodoes) {
 	})
 
 	document.querySelector('.home-nav').addEventListener('click', () => {
-		handleProjectSelectEvent(projectManager.homeProjectId)
+		handleProjectSelectEvent(projectManager.getHomeProject().id)
 	})
 
 	const allProjects = projectManager.getAllProjects()
